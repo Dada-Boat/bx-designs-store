@@ -22,7 +22,11 @@ about 10 minutes and is done once.
 
 1. Open **Authentication** › **URL Configuration**.
 2. Set **Site URL** to `https://dada-boat.github.io/bx-designs-store/library.html`.
-3. Under **Redirect URLs**, add `https://dada-boat.github.io/bx-designs-store/library.html`.
+3. Optionally, under **Redirect URLs**, add the same address (sign-in links already return to the
+   Site URL; the list matters only if the library ever moves to another page).
+
+The live project is **Dada-Boat's Project** (`sqancxhiapgedelenkoa`, organization BuildX
+Multimedia): steps 1–4 were done on 2026-10-23.
 
 Email sign-in is on by default. Supabase's built-in email service only sends a few messages per
 hour; for real use, add your own email service under **Authentication** › **Emails** › **SMTP

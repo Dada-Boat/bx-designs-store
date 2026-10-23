@@ -22,6 +22,11 @@ create index if not exists designs_shared_created on public.designs (created_at 
 
 alter table public.designs enable row level security;
 
+-- Let the site's API reach the table (projects can be set not to expose new tables); the policies
+-- below still decide which rows each visitor may see or change.
+grant select on public.designs to anon;
+grant select, insert, update, delete on public.designs to authenticated;
+
 drop policy if exists "read own or shared designs" on public.designs;
 create policy "read own or shared designs" on public.designs
   for select using (shared or owner = auth.uid());
