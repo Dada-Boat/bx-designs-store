@@ -1,5 +1,5 @@
 {
-  "version": "0.10.2",
+  "version": "0.10.3",
   "url": "https://dada-boat.github.io/bx-designs-store/updates.html",
-  "notes": "Fixed: \"Open in BX Designs\" on the template store and Design Library now works while BX Designs is already open. Also new in 0.10.x: Store > Design Library, faster big brushes, JPEG Options."
+  "notes": "New: designers can publish their own templates from the Design Library, and everyone can open them from the template store. Fixed: \"Open in BX Designs\" links repair themselves on start; the CMYK Channel Mixer mixes inks like Photoshop."
 }
