@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BX Designs Library</title>
+<meta name="description" content="Save your BX Designs work online, open it again from any computer, and share designs in the gallery.">
+<link rel="icon" href="assets/icon.png">
+<style>
+  :root {
+    --bg: #f4f7f3; --panel: #ffffff; --text: #1c261d; --muted: #5d6b5f; --accent: #5fb94b; --accent-text: #0c220a;
+    --line: #dfe7dc; --danger: #b3261e; --check-a: #e9eee7; --check-b: #f6f9f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121613; --panel: #1b211c; --text: #e8efe6; --muted: #9aa99c; --line: #2a332b; --danger: #f2b8b5; --check-a: #222a23; --check-b: #283029; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: #1e5631; }
+  .bar { max-width: 1120px; margin: 0 auto; padding: 18px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .bar img { height: 40px; }
+  .bar nav { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
+  .bar a { color: #e7f6e2; text-decoration: none; }
+  .bar a:hover { text-decoration: underline; }
+  main { max-width: 1120px; margin: 0 auto; padding: 32px 16px 56px; }
+  h1 { margin: 0 0 6px; font-size: clamp(28px, 4vw, 38px); }
+  h2 { font-size: 20px; margin: 36px 0 12px; }
+  .lead { color: var(--muted); margin: 0 0 20px; max-width: 680px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+  label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); flex: 1 1 200px; }
+  input[type=text], input[type=email], input[type=file] { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; }
+  .check { flex-direction: row; align-items: center; gap: 8px; flex: 0 0 auto; color: var(--text); }
+  button, .btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); text-decoration: none; text-align: center; }
+  button.primary, .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  button.danger { color: var(--danger); }
+  button:disabled { opacity: .55; cursor: default; }
+  .status { min-height: 1.5em; margin: 10px 0 0; font-size: 14px; color: var(--muted); }
+  .status.error { color: var(--danger); }
+  .who { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; color: var(--muted); font-size: 14px; }
+  .grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+  .thumb { aspect-ratio: 4 / 3; background: repeating-conic-gradient(var(--check-a) 0 25%, var(--check-b) 0 50%) 0 0 / 16px 16px; display: grid; place-items: center; padding: 10px; color: var(--muted); font-size: 13px; }
+  .thumb img { max-width: 100%; max-height: 100%; border-radius: 4px; }
+  .info { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+  .info h3 { margin: 0; font-size: 16px; overflow-wrap: anywhere; }
+  .meta { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: auto; padding-top: 10px; }
+  .actions > * { flex: 1 1 auto; }
+  .empty { color: var(--muted); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <img src="assets/logo-white.png" alt="BX Designs">
+    <nav><a href="./">Templates</a><a href="library.html">Design Library</a><a href="updates.html">Get BX Designs</a></nav>
+  </div>
+</header>
+<main>
+  <h1>Design Library</h1>
+  <p class="lead">Save your designs online and open them again from any computer. Keep them private, or share them in the gallery for other designers.</p>
+
+  <section class="panel" id="closed" hidden>
+    <strong>The design library isn't open yet.</strong>
+    <p class="meta">It opens as soon as BuildX Multimedia connects its storage. The templates are already available.</p>
+  </section>
+
+  <section class="panel" id="signin" hidden>
+    <form id="signin-form" class="row">
+      <label>Your email<input type="email" id="email" required autocomplete="email" placeholder="you@example.com"></label>
+      <button class="primary" type="submit">Email me a sign-in link</button>
+    </form>
+    <p class="status" id="signin-status">No password needed: we email you a link that signs you in.</p>
+  </section>
+
+  <section id="mine-section" hidden>
+    <div class="who"><span id="who"></span><button type="button" id="signout">Sign out</button></div>
+    <h2>Save a design</h2>
+    <form class="panel" id="upload-form">
+      <div class="row">
+        <label>Design file (PSD, BX Designs, PNG, JPEG, TIFF, WebP; up to 50 MB)
+          <input type="file" id="file" required accept=".psd,.psb,.pcraft,.png,.jpg,.jpeg,.tif,.tiff,.webp"></label>
+        <label>Preview image (optional, for PSD and BX Designs files)
+          <input type="file" id="preview" accept=".png,.jpg,.jpeg,.webp"></label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label>Title<input type="text" id="title" required maxlength="120" placeholder="Spring campaign poster"></label>
+        <label>Your designer name (shown if you share)<input type="text" id="designer" maxlength="60" placeholder="Optional"></label>
+        <label class="check"><input type="checkbox" id="share"> Share in the gallery</label>
+        <button class="primary" type="submit" id="upload-button">Save to library</button>
+      </div>
+      <p class="status" id="upload-status"></p>
+    </form>
+    <h2>My designs</h2>
+    <div class="grid" id="mine"></div>
+  </section>
+
+  <section id="gallery-section" hidden>
+    <h2>Gallery</h2>
+    <p class="lead">Designs other designers shared. Open one in BX Designs to remix it.</p>
+    <div class="grid" id="gallery"></div>
+  </section>
+</main>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+  const MAX_FILE = 50 * 1024 * 1024;
+  const MAX_PREVIEW = 5 * 1024 * 1024;
+  const FILE_TYPES = ['psd', 'psb', 'pcraft', 'png', 'jpg', 'jpeg', 'tif', 'tiff', 'webp'];
+  const IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'webp'];
+  const LINK_SECONDS = 3600;
+  const $ = id => document.getElementById(id);
+  const cfg = window.BX_LIBRARY || {};
+  let sb = null;
+  let user = null;
+
+  const ext = name => (name.split('.').pop() || '').toLowerCase();
+  // A storage-safe file name: letters, digits, dot, dash and underscore.
+  const safe = name => name.replace(/[^A-Za-z0-9._-]+/g, '_').replace(/^\.+/, '').slice(0, 100) || 'design';
+  const sizeText = n => n >= 1048576 ? `${(n / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(n / 1024))} KB`;
+  const dateText = s => new Date(s).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+  function status(el, text, error = false) {
+    el.textContent = text;
+    el.classList.toggle('error', error);
+  }
+
+  async function signedUrl(path, fileName) {
+    const opts = fileName ? { download: fileName } : undefined;
+    const { data, error } = await sb.storage.from('designs').createSignedUrl(path, LINK_SECONDS, opts);
+    if (error) throw error;
+    return data.signedUrl;
+  }
+
+  // One design card. Everything people typed goes in as text, never as HTML.
+  function card(d, own) {
+    const el = document.createElement('article');
+    el.className = 'card';
+    const thumb = document.createElement('div');
+    thumb.className = 'thumb';
+    thumb.textContent = ext(d.file_name).toUpperCase();
+    const info = document.createElement('div');
+    info.className = 'info';
+    const h = document.createElement('h3');
+    h.textContent = d.title;
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const by = d.designer_name ? ` · by ${d.designer_name}` : '';
+    meta.textContent = `${ext(d.file_name).toUpperCase()} · ${sizeText(d.size)} · ${dateText(d.created_at)}${own ? '' : by}${own && d.shared ? ' · shared' : ''}`;
+    const actions = document.createElement('div');
+    actions.className = 'actions';
+    const open = document.createElement('a');
+    open.className = 'btn primary';
+    open.textContent = 'Open in BX Designs';
+    open.href = '#';
+    const get = document.createElement('a');
+    get.className = 'btn';
+    get.textContent = 'Download';
+    get.href = '#';
+    actions.append(open, get);
+    // Links are fresh signed addresses, asked for when clicked (they last an hour).
+    open.onclick = async e => {
+      e.preventDefault();
+      try { location.href = `bxdesigns://open?url=${encodeURIComponent(await signedUrl(d.file_path))}`; } catch (err) { alert(`Couldn't open it: ${err.message}`); }
+    };
+    get.onclick = async e => {
+      e.preventDefault();
+      try { location.href = await signedUrl(d.file_path, d.file_name); } catch (err) { alert(`Couldn't download it: ${err.message}`); }
+    };
+    if (own) {
+      const share = document.createElement('button');
+      share.type = 'button';
+      share.textContent = d.shared ? 'Make private' : 'Share';
+      share.onclick = async () => {
+        share.disabled = true;
+        const { error } = await sb.from('designs').update({ shared: !d.shared }).eq('id', d.id);
+        if (error) alert(`Couldn't change sharing: ${error.message}`);
+        refresh();
+      };
+      const del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'danger';
+      del.textContent = 'Delete';
+      del.onclick = async () => {
+        if (!confirm(`Delete "${d.title}" from your library? This can't be undone.`)) return;
+        del.disabled = true;
+        const files = [d.file_path, d.preview_path].filter((p, i, a) => p && a.indexOf(p) === i);
+        const { error } = await sb.from('designs').delete().eq('id', d.id);
+        if (error) { alert(`Couldn't delete it: ${error.message}`); del.disabled = false; return; }
+        await sb.storage.from('designs').remove(files);
+        refresh();
+      };
+      actions.append(share, del);
+    }
+    info.append(h, meta, actions);
+    el.append(thumb, info);
+    if (d.preview_path) {
+      signedUrl(d.preview_path).then(url => {
+        const img = document.createElement('img');
+        img.alt = `${d.title} preview`;
+        img.loading = 'lazy';
+        img.src = url;
+        thumb.replaceChildren(img);
+      }).catch(() => {});
+    }
+    return el;
+  }
+
+  function fill(el, rows, own, empty) {
+    if (!rows.length) {
+      const p = document.createElement('p');
+      p.className = 'empty';
+      p.textContent = empty;
+      el.replaceChildren(p);
+      return;
+    }
+    el.replaceChildren(...rows.map(d => card(d, own)));
+  }
+
+  async function refresh() {
+    const gallery = await sb.from('designs').select('*').eq('shared', true).order('created_at', { ascending: false }).limit(60);
+    fill($('gallery'), gallery.data || [], false, gallery.error ? `The gallery couldn't be loaded: ${gallery.error.message}` : 'Nothing shared yet. Be the first!');
+    if (!user) return;
+    const mine = await sb.from('designs').select('*').eq('owner', user.id).order('created_at', { ascending: false });
+    fill($('mine'), mine.data || [], true, mine.error ? `Your designs couldn't be loaded: ${mine.error.message}` : 'Nothing saved yet: save your first design above.');
+  }
+
+  function show() {
+    $('signin').hidden = !!user;
+    $('mine-section').hidden = !user;
+    $('gallery-section').hidden = false;
+    if (user) $('who').textContent = `Signed in as ${user.email}`;
+    refresh();
+  }
+
+  $('signin-form').onsubmit = async e => {
+    e.preventDefault();
+    const email = $('email').value.trim();
+    status($('signin-status'), 'Sending…');
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href.split('#')[0] } });
+    if (error) status($('signin-status'), `Couldn't send the link: ${error.message}`, true);
+    else status($('signin-status'), `Check ${email}: the link signs you in on this page.`);
+  };
+
+  $('signout').onclick = () => sb.auth.signOut();
+
+  $('upload-form').onsubmit = async e => {
+    e.preventDefault();
+    const out = $('upload-status');
+    const file = $('file').files[0];
+    const preview = $('preview').files[0];
+    const title = $('title').value.trim();
+    const designer = $('designer').value.trim();
+    if (!file || !title) return status(out, 'Choose a file and give it a title.', true);
+    if (!FILE_TYPES.includes(ext(file.name))) return status(out, 'That file type isn\'t supported.', true);
+    if (file.size > MAX_FILE) return status(out, 'That file is over 50 MB.', true);
+    if (preview && (!IMAGE_TYPES.includes(ext(preview.name)) || preview.size > MAX_PREVIEW)) return status(out, 'The preview must be a PNG, JPEG or WebP under 5 MB.', true);
+    try { localStorage.setItem('bx-designer', designer); } catch {}
+    $('upload-button').disabled = true;
+    status(out, 'Uploading…');
+    const id = crypto.randomUUID();
+    const path = `${user.id}/${id}-${safe(file.name)}`;
+    let previewPath = IMAGE_TYPES.includes(ext(file.name)) ? path : null;
+    const uploaded = [];
+    try {
+      const up = await sb.storage.from('designs').upload(path, file, { contentType: file.type || 'application/octet-stream', upsert: false });
+      if (up.error) throw up.error;
+      uploaded.push(path);
+      if (preview) {
+        previewPath = `${user.id}/${id}-preview-${safe(preview.name)}`;
+        const pv = await sb.storage.from('designs').upload(previewPath, preview, { contentType: preview.type || 'image/png', upsert: false });
+        if (pv.error) throw pv.error;
+        uploaded.push(previewPath);
+      }
+      const row = { title, designer_name: designer || null, file_path: path, preview_path: previewPath, file_name: file.name.slice(0, 200), size: file.size, shared: $('share').checked };
+      const ins = await sb.from('designs').insert(row);
+      if (ins.error) throw ins.error;
+      status(out, `Saved "${title}".`);
+      $('upload-form').reset();
+      $('designer').value = designer;
+      refresh();
+    } catch (err) {
+      if (uploaded.length) await sb.storage.from('designs').remove(uploaded);
+      status(out, `Couldn't save it: ${err.message}`, true);
+    } finally {
+      $('upload-button').disabled = false;
+    }
+  };
+
+  if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase) {
+    $('closed').hidden = false;
+  } else {
+    try { $('designer').value = localStorage.getItem('bx-designer') || ''; } catch {}
+    sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+    sb.auth.onAuthStateChange((_event, session) => {
+      user = session ? session.user : null;
+      show();
+    });
+  }
+</script>
+</body>
+</html>
