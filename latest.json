@@ -1,5 +1,5 @@
 {
-  "version": "0.10.1",
+  "version": "0.10.2",
   "url": "https://dada-boat.github.io/bx-designs-store/updates.html",
-  "notes": "New: Store > Design Library. Save your designs online, open them again from any computer, and share them in the gallery. Also faster big brushes, JPEG Options and the template store."
+  "notes": "Fixed: \"Open in BX Designs\" on the template store and Design Library now works while BX Designs is already open. Also new in 0.10.x: Store > Design Library, faster big brushes, JPEG Options."
 }
