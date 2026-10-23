@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Get BX Designs</title>
+<meta name="description" content="The latest version of BX Designs and what changed.">
+<link rel="icon" href="assets/icon.png">
+<style>
+  :root { --bg: #f4f7f3; --panel: #ffffff; --text: #1c261d; --muted: #5d6b5f; --accent: #5fb94b; --line: #dfe7dc; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #121613; --panel: #1b211c; --text: #e8efe6; --muted: #9aa99c; --line: #2a332b; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: #1e5631; }
+  .bar { max-width: 880px; margin: 0 auto; padding: 18px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .bar img { height: 40px; }
+  .bar nav { margin-left: auto; display: flex; gap: 18px; }
+  .bar a { color: #e7f6e2; text-decoration: none; }
+  main { max-width: 880px; margin: 0 auto; padding: 36px 16px 56px; }
+  h1 { margin: 0 0 4px; }
+  .version { color: var(--muted); margin: 0 0 24px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px; margin-bottom: 20px; }
+  .panel h2 { margin: 0 0 8px; font-size: 18px; }
+  ul { margin: 8px 0 0; padding-left: 20px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <img src="assets/logo-white.png" alt="BX Designs">
+    <nav><a href="./">Templates</a><a href="updates.html">Get BX Designs</a></nav>
+  </div>
+</header>
+<main>
+  <h1>BX Designs</h1>
+  <p class="version" id="version">Latest version: 0.10.0</p>
+  <section class="panel">
+    <h2>Getting the latest version</h2>
+    <p>BX Designs is shared by BuildX Multimedia. Ask us for the latest installer folder, then run
+      <strong>Install BX Designs.cmd</strong> inside it. Installing over an older version keeps your settings.</p>
+    <p class="muted">In the app, Help › Check for Updates tells you when a new version is out.</p>
+  </section>
+  <section class="panel">
+    <h2>What's new</h2>
+    <ul id="notes">
+      <li>Faster painting with big soft brushes.</li>
+      <li>JPEG Options when saving a JPEG: quality and Baseline, Optimized or Progressive.</li>
+      <li>Help › Check for Updates, recently used fonts at the top of the font menus, Camera Raw defaults.</li>
+      <li>Template store: open templates from this site straight into BX Designs.</li>
+    </ul>
+  </section>
+</main>
+<script>
+  // The release feed the app reads, shown here too.
+  fetch('latest.json').then(r => r.json()).then(f => {
+    document.getElementById('version').textContent = `Latest version: ${f.version}`;
+  }).catch(() => {});
+</script>
+</body>
+</html>

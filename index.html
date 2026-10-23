@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BX Designs Templates</title>
+<meta name="description" content="Free templates for BX Designs by BuildX Multimedia: open one straight into the app and make it yours.">
+<link rel="icon" href="assets/icon.png">
+<style>
+  :root {
+    --bg: #f4f7f3; --panel: #ffffff; --text: #1c261d; --muted: #5d6b5f;
+    --accent: #5fb94b; --accent-text: #0c220a; --line: #dfe7dc; --shadow: 0 1px 3px rgba(16, 40, 16, .08), 0 8px 24px rgba(16, 40, 16, .06);
+    --check-a: #e9eee7; --check-b: #f6f9f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121613; --panel: #1b211c; --text: #e8efe6; --muted: #9aa99c; --line: #2a332b; --shadow: none; --check-a: #222a23; --check-b: #283029; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: #1e5631; color: #fff; }
+  .bar { max-width: 1120px; margin: 0 auto; padding: 18px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .bar img { height: 40px; }
+  .bar nav { margin-left: auto; display: flex; gap: 18px; }
+  .bar a { color: #e7f6e2; text-decoration: none; }
+  .bar a:hover { text-decoration: underline; }
+  .hero { max-width: 1120px; margin: 0 auto; padding: 36px 16px 8px; }
+  .hero h1 { margin: 0 0 8px; font-size: clamp(28px, 4vw, 40px); }
+  .hero p { margin: 0; color: var(--muted); max-width: 640px; }
+  .filters { max-width: 1120px; margin: 20px auto 0; padding: 0 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  .filters button { border: 1px solid var(--line); background: var(--panel); color: var(--text); padding: 6px 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; }
+  .filters button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
+  main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 20px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 270px), 1fr)); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+  .thumb { aspect-ratio: 4 / 3; background: repeating-conic-gradient(var(--check-a) 0 25%, var(--check-b) 0 50%) 0 0 / 16px 16px; display: grid; place-items: center; padding: 12px; }
+  .thumb img { max-width: 100%; max-height: 100%; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, .18); }
+  .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .info h2 { margin: 0; font-size: 17px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .actions { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; }
+  .btn { flex: 1; text-align: center; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; }
+  .btn.primary { background: var(--accent); color: var(--accent-text); }
+  .btn.secondary { border: 1px solid var(--line); color: var(--text); }
+  .btn:hover { filter: brightness(1.05); }
+  .note { max-width: 1120px; margin: 0 auto; padding: 0 16px 40px; color: var(--muted); font-size: 14px; }
+  footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  footer .bar a { color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <img src="assets/logo-white.png" alt="BX Designs">
+    <nav><a href="./">Templates</a><a href="updates.html">Get BX Designs</a></nav>
+  </div>
+</header>
+<section class="hero">
+  <h1>Templates</h1>
+  <p>Pick a design, open it straight into BX Designs and make it yours. Every template is a layered file with editable text, shapes and colours.</p>
+</section>
+<div class="filters" id="filters" role="toolbar" aria-label="Categories"></div>
+<main id="grid" aria-live="polite"><p class="meta">Loading templates…</p></main>
+<p class="note">“Open in BX Designs” needs BX Designs installed on this computer. Without it, use Download and open the file from BX Designs › File › Open.</p>
+<footer>
+  <div class="bar">© BuildX Multimedia · BX Designs is based on PhotoCraft (MIT OR Apache-2.0)</div>
+</footer>
+<script>
+  // The site's own address, so the app can download a template from it.
+  const base = new URL('./', location.href);
+  const grid = document.getElementById('grid');
+  const filters = document.getElementById('filters');
+  let all = [];
+  let current = 'All';
+
+  function card(t) {
+    const psd = new URL(`templates/${t.id}.psd`, base).href;
+    const el = document.createElement('article');
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="thumb"><img loading="lazy" alt=""></div>
+      <div class="info">
+        <h2></h2>
+        <div class="meta"></div>
+        <div class="actions">
+          <a class="btn primary">Open in BX Designs</a>
+          <a class="btn secondary" download>Download</a>
+        </div>
+      </div>`;
+    el.querySelector('img').src = `templates/${t.id}.png`;
+    el.querySelector('img').alt = `${t.title} preview`;
+    el.querySelector('h2').textContent = t.title;
+    el.querySelector('.meta').textContent = `${t.category} · ${t.width} × ${t.height} px · PSD`;
+    el.querySelector('.primary').href = `bxdesigns://open?url=${encodeURIComponent(psd)}`;
+    el.querySelector('.secondary').href = psd;
+    return el;
+  }
+
+  function render() {
+    grid.replaceChildren(...all.filter(t => current === 'All' || t.category === current).map(card));
+  }
+
+  function buttons() {
+    const cats = ['All', ...new Set(all.map(t => t.category))];
+    filters.replaceChildren(...cats.map(c => {
+      const b = document.createElement('button');
+      b.textContent = c;
+      b.setAttribute('aria-pressed', String(c === current));
+      b.onclick = () => { current = c; buttons(); render(); };
+      return b;
+    }));
+  }
+
+  fetch('templates/catalogue.json')
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(list => { all = list; buttons(); render(); })
+    .catch(() => { grid.innerHTML = '<p class="meta">The template list could not be loaded. Please try again later.</p>'; });
+</script>
+</body>
+</html>

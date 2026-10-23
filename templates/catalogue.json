@@ -1,0 +1,30 @@
+[
+  {
+    "id": "instagram-sale-post",
+    "title": "Summer Sale Post",
+    "category": "Social media",
+    "width": 1080,
+    "height": 1080
+  },
+  {
+    "id": "youtube-thumbnail",
+    "title": "Video Thumbnail",
+    "category": "Social media",
+    "width": 1280,
+    "height": 720
+  },
+  {
+    "id": "event-poster-a4",
+    "title": "Event Poster (A4)",
+    "category": "Print",
+    "width": 1240,
+    "height": 1754
+  },
+  {
+    "id": "business-card",
+    "title": "Business Card",
+    "category": "Print",
+    "width": 1050,
+    "height": 600
+  }
+]
