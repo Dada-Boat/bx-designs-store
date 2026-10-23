@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BX Designs Templates</title>
-<meta name="description" content="Free templates for BX Designs by BuildX Multimedia: open one straight into the app and make it yours.">
+<meta name="description" content="Free templates for BX Designs, by BuildX Multimedia and designers in the community: open one straight into the app and make it yours.">
 <link rel="icon" href="assets/icon.png">
 <style>
   :root {
@@ -35,7 +35,8 @@
   .thumb img { max-width: 100%; max-height: 100%; border-radius: 4px; box-shadow: 0 2px 8px rgba(0, 0, 0, .18); }
   .info { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; flex: 1; }
   .info h2 { margin: 0; font-size: 17px; }
-  .meta { color: var(--muted); font-size: 13px; }
+  .meta { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .hero a { color: inherit; }
   .actions { display: flex; gap: 8px; margin-top: auto; padding-top: 12px; }
   .btn { flex: 1; text-align: center; padding: 8px 10px; border-radius: 8px; text-decoration: none; font-size: 14px; font-weight: 600; }
   .btn.primary { background: var(--accent); color: var(--accent-text); }
@@ -55,7 +56,7 @@
 </header>
 <section class="hero">
   <h1>Templates</h1>
-  <p>Pick a design, open it straight into BX Designs and make it yours. Every template is a layered file with editable text, shapes and colours.</p>
+  <p>Pick a design, open it straight into BX Designs and make it yours. Templates come from BuildX Multimedia and from designers in the community; <a href="library.html">publish your own</a> from the Design Library.</p>
 </section>
 <div class="filters" id="filters" role="toolbar" aria-label="Categories"></div>
 <main id="grid" aria-live="polite"><p class="meta">Loading templates…</p></main>
@@ -63,16 +64,48 @@
 <footer>
   <div class="bar">© BuildX Multimedia · BX Designs is based on PhotoCraft (MIT OR Apache-2.0)</div>
 </footer>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
   // The site's own address, so the app can download a template from it.
   const base = new URL('./', location.href);
+  // Community templates' signed links last six hours (the page asks again when reloaded).
+  const LINK_SECONDS = 6 * 3600;
   const grid = document.getElementById('grid');
   const filters = document.getElementById('filters');
   let all = [];
   let current = 'All';
 
-  function card(t) {
+  // A built-in template (from catalogue.json) as a card entry.
+  function builtIn(t) {
     const psd = new URL(`templates/${t.id}.psd`, base).href;
+    return { title: t.title, category: t.category, meta: `${t.category} · ${t.width} × ${t.height} px · PSD`, preview: `templates/${t.id}.png`, file: psd, download: psd };
+  }
+
+  // Templates designers published from the Design Library (free ones; BuildX may hide any).
+  async function community() {
+    const cfg = window.BX_LIBRARY || {};
+    if (!cfg.supabaseUrl || !cfg.supabaseAnonKey || !window.supabase) return [];
+    const sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { persistSession: false } });
+    const { data, error } = await sb.from('designs').select('title, designer_name, category, file_path, preview_path, file_name')
+      .eq('is_template', true).eq('hidden', false).eq('price_cents', 0).order('created_at', { ascending: false }).limit(200);
+    if (error || !data || !data.length) return [];
+    const paths = [...new Set(data.flatMap(d => [d.file_path, d.preview_path]))];
+    const signed = await sb.storage.from('designs').createSignedUrls(paths, LINK_SECONDS);
+    if (signed.error) return [];
+    const url = new Map(signed.data.filter(s => s.signedUrl).map(s => [s.path, s.signedUrl]));
+    return data.filter(d => url.has(d.file_path) && url.has(d.preview_path)).map(d => {
+      const type = (d.file_name.split('.').pop() || '').toUpperCase();
+      const file = url.get(d.file_path);
+      return {
+        title: d.title, category: d.category, preview: url.get(d.preview_path), file,
+        meta: `${d.category} · ${type}${d.designer_name ? ` · by ${d.designer_name}` : ' · community'}`,
+        download: `${file}${file.includes('?') ? '&' : '?'}download=${encodeURIComponent(d.file_name)}`,
+      };
+    });
+  }
+
+  function card(t) {
     const el = document.createElement('article');
     el.className = 'card';
     el.innerHTML = `
@@ -85,12 +118,12 @@
           <a class="btn secondary" download>Download</a>
         </div>
       </div>`;
-    el.querySelector('img').src = `templates/${t.id}.png`;
+    el.querySelector('img').src = t.preview;
     el.querySelector('img').alt = `${t.title} preview`;
     el.querySelector('h2').textContent = t.title;
-    el.querySelector('.meta').textContent = `${t.category} · ${t.width} × ${t.height} px · PSD`;
-    el.querySelector('.primary').href = `bxdesigns://open?url=${encodeURIComponent(psd)}`;
-    el.querySelector('.secondary').href = psd;
+    el.querySelector('.meta').textContent = t.meta;
+    el.querySelector('.primary').href = `bxdesigns://open?url=${encodeURIComponent(t.file)}`;
+    el.querySelector('.secondary').href = t.download;
     return el;
   }
 
@@ -109,10 +142,14 @@
     }));
   }
 
+  // Built-in templates show at once; community ones join when they arrive (or not, if the library
+  // can't be reached).
   fetch('templates/catalogue.json')
     .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-    .then(list => { all = list; buttons(); render(); })
-    .catch(() => { grid.innerHTML = '<p class="meta">The template list could not be loaded. Please try again later.</p>'; });
+    .then(list => { all = list.map(builtIn); buttons(); render(); })
+    .catch(() => { grid.innerHTML = '<p class="meta">The template list could not be loaded. Please try again later.</p>'; })
+    .then(() => community().catch(() => []))
+    .then(more => { if (more.length) { all = [...all, ...more]; buttons(); render(); } });
 </script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>BX Designs Library</title>
-<meta name="description" content="Save your BX Designs work online, open it again from any computer, and share designs in the gallery.">
+<meta name="description" content="Save your BX Designs work online, open it again from any computer, share designs in the gallery and publish your own templates.">
 <link rel="icon" href="assets/icon.png">
 <style>
   :root {
@@ -29,7 +29,7 @@
   .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; }
   .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
   label { display: flex; flex-direction: column; gap: 4px; font-size: 14px; color: var(--muted); flex: 1 1 200px; }
-  input[type=text], input[type=email], input[type=file] { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; }
+  input[type=text], input[type=email], input[type=file], select { font: inherit; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; }
   .check { flex-direction: row; align-items: center; gap: 8px; flex: 0 0 auto; color: var(--text); }
   button, .btn { font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 9px 14px; cursor: pointer; border: 1px solid var(--line); background: var(--panel); color: var(--text); text-decoration: none; text-align: center; }
   button.primary, .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-text); }
@@ -60,7 +60,7 @@
 </header>
 <main>
   <h1>Design Library</h1>
-  <p class="lead">Save your designs online and open them again from any computer. Keep them private, or share them in the gallery for other designers.</p>
+  <p class="lead">Save your designs online and open them again from any computer. Keep them private, share them in the gallery, or publish them as templates that everyone can use from the <a href="./">template store</a>.</p>
 
   <section class="panel" id="closed" hidden>
     <strong>The design library isn't open yet.</strong>
@@ -89,8 +89,13 @@
         <label>Title<input type="text" id="title" required maxlength="120" placeholder="Spring campaign poster"></label>
         <label>Your designer name (shown if you share)<input type="text" id="designer" maxlength="60" placeholder="Optional"></label>
         <label class="check"><input type="checkbox" id="share"> Share in the gallery</label>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <label class="check"><input type="checkbox" id="as-template"> Publish as a template in the store</label>
+        <label>Template category<select id="category"></select></label>
         <button class="primary" type="submit" id="upload-button">Save to library</button>
       </div>
+      <p class="meta">Templates appear in the template store for everyone, with your designer name. They need a preview image (an image file is its own preview).</p>
       <p class="status" id="upload-status"></p>
     </form>
     <h2>My designs</h2>
@@ -111,6 +116,8 @@
   const FILE_TYPES = ['psd', 'psb', 'pcraft', 'png', 'jpg', 'jpeg', 'tif', 'tiff', 'webp'];
   const IMAGE_TYPES = ['png', 'jpg', 'jpeg', 'webp'];
   const LINK_SECONDS = 3600;
+  // Template store categories (the built-in templates use the first two).
+  const CATEGORIES = ['Social media', 'Print', 'Business', 'Web', 'Presentation', 'Other'];
   const $ = id => document.getElementById(id);
   const cfg = window.BX_LIBRARY || {};
   let sb = null;
@@ -148,7 +155,8 @@
     const meta = document.createElement('div');
     meta.className = 'meta';
     const by = d.designer_name ? ` · by ${d.designer_name}` : '';
-    meta.textContent = `${ext(d.file_name).toUpperCase()} · ${sizeText(d.size)} · ${dateText(d.created_at)}${own ? '' : by}${own && d.shared ? ' · shared' : ''}`;
+    const flags = own ? [d.shared && 'shared', d.is_template && `template (${d.category})`, d.hidden && 'hidden by BuildX Multimedia'].filter(Boolean) : [];
+    meta.textContent = [`${ext(d.file_name).toUpperCase()} · ${sizeText(d.size)} · ${dateText(d.created_at)}${own ? '' : by}`, ...flags].join(' · ');
     const actions = document.createElement('div');
     actions.className = 'actions';
     const open = document.createElement('a');
@@ -192,7 +200,7 @@
         await sb.storage.from('designs').remove(files);
         refresh();
       };
-      actions.append(share, del);
+      actions.append(share, templateControls(d), del);
     }
     info.append(h, meta, actions);
     el.append(thumb, info);
@@ -208,6 +216,69 @@
     return el;
   }
 
+  // Publish a design to the template store (a category and a preview are needed), or withdraw it.
+  function templateControls(d) {
+    const box = document.createElement('div');
+    box.className = 'actions';
+    box.style.flexBasis = '100%';
+    if (d.is_template) {
+      const out = document.createElement('button');
+      out.type = 'button';
+      out.textContent = 'Withdraw template';
+      out.onclick = async () => {
+        out.disabled = true;
+        const { error } = await sb.from('designs').update({ is_template: false }).eq('id', d.id);
+        if (error) alert(`Couldn't withdraw it: ${error.message}`);
+        refresh();
+      };
+      box.append(out);
+      return box;
+    }
+    if (!d.preview_path) {
+      const pick = document.createElement('input');
+      pick.type = 'file';
+      pick.accept = '.png,.jpg,.jpeg,.webp';
+      pick.hidden = true;
+      const add = document.createElement('button');
+      add.type = 'button';
+      add.textContent = 'Add a preview to publish as template';
+      add.onclick = () => pick.click();
+      pick.onchange = async () => {
+        const preview = pick.files[0];
+        if (!preview) return;
+        if (!IMAGE_TYPES.includes(ext(preview.name)) || preview.size > MAX_PREVIEW) return alert('The preview must be a PNG, JPEG or WebP under 5 MB.');
+        add.disabled = true;
+        const path = `${user.id}/${crypto.randomUUID()}-preview-${safe(preview.name)}`;
+        const up = await sb.storage.from('designs').upload(path, preview, { contentType: preview.type || 'image/png', upsert: false });
+        if (up.error) { alert(`Couldn't upload the preview: ${up.error.message}`); add.disabled = false; return; }
+        const { error } = await sb.from('designs').update({ preview_path: path }).eq('id', d.id);
+        if (error) { await sb.storage.from('designs').remove([path]); alert(`Couldn't add the preview: ${error.message}`); }
+        refresh();
+      };
+      box.append(add, pick);
+      return box;
+    }
+    const cat = categorySelect();
+    const pub = document.createElement('button');
+    pub.type = 'button';
+    pub.textContent = 'Publish as template';
+    pub.onclick = async () => {
+      pub.disabled = true;
+      const { error } = await sb.from('designs').update({ is_template: true, category: cat.value }).eq('id', d.id);
+      if (error) alert(`Couldn't publish it: ${error.message}`);
+      refresh();
+    };
+    box.append(cat, pub);
+    return box;
+  }
+
+  function categorySelect() {
+    const s = document.createElement('select');
+    s.setAttribute('aria-label', 'Template category');
+    s.append(...CATEGORIES.map(c => new Option(c, c)));
+    return s;
+  }
+
   function fill(el, rows, own, empty) {
     if (!rows.length) {
       const p = document.createElement('p');
@@ -220,7 +291,7 @@
   }
 
   async function refresh() {
-    const gallery = await sb.from('designs').select('*').eq('shared', true).order('created_at', { ascending: false }).limit(60);
+    const gallery = await sb.from('designs').select('*').eq('shared', true).eq('hidden', false).order('created_at', { ascending: false }).limit(60);
     fill($('gallery'), gallery.data || [], false, gallery.error ? `The gallery couldn't be loaded: ${gallery.error.message}` : 'Nothing shared yet. Be the first!');
     if (!user) return;
     const mine = await sb.from('designs').select('*').eq('owner', user.id).order('created_at', { ascending: false });
@@ -257,6 +328,8 @@
     if (!FILE_TYPES.includes(ext(file.name))) return status(out, 'That file type isn\'t supported.', true);
     if (file.size > MAX_FILE) return status(out, 'That file is over 50 MB.', true);
     if (preview && (!IMAGE_TYPES.includes(ext(preview.name)) || preview.size > MAX_PREVIEW)) return status(out, 'The preview must be a PNG, JPEG or WebP under 5 MB.', true);
+    const asTemplate = $('as-template').checked;
+    if (asTemplate && !preview && !IMAGE_TYPES.includes(ext(file.name))) return status(out, 'A template needs a preview image: add one above.', true);
     try { localStorage.setItem('bx-designer', designer); } catch {}
     $('upload-button').disabled = true;
     status(out, 'Uploading…');
@@ -274,10 +347,11 @@
         if (pv.error) throw pv.error;
         uploaded.push(previewPath);
       }
-      const row = { title, designer_name: designer || null, file_path: path, preview_path: previewPath, file_name: file.name.slice(0, 200), size: file.size, shared: $('share').checked };
+      const row = { title, designer_name: designer || null, file_path: path, preview_path: previewPath, file_name: file.name.slice(0, 200), size: file.size, shared: $('share').checked,
+        is_template: asTemplate, category: asTemplate ? $('category').value : null };
       const ins = await sb.from('designs').insert(row);
       if (ins.error) throw ins.error;
-      status(out, `Saved "${title}".`);
+      status(out, asTemplate ? `Saved "${title}" and published it in the template store.` : `Saved "${title}".`);
       $('upload-form').reset();
       $('designer').value = designer;
       refresh();
@@ -293,6 +367,7 @@
     $('closed').hidden = false;
   } else {
     try { $('designer').value = localStorage.getItem('bx-designer') || ''; } catch {}
+    $('category').append(...CATEGORIES.map(c => new Option(c, c)));
     sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
     sb.auth.onAuthStateChange((_event, session) => {
       user = session ? session.user : null;

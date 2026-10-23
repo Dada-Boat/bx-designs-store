@@ -59,9 +59,27 @@ bypasses every rule.
 
 These rules are enforced by the database (Row Level Security), not only by the page.
 
+## Community templates
+
+Designers publish their own templates from the library page: **Publish as template** on a saved
+design (with a category and a preview image), or the checkbox when saving. Published templates
+appear in the template store for everyone, next to the built-in ones, with the designer's name.
+The designer can **Withdraw** a template at any time.
+
+Two fields are yours alone (designers can't change them; the database resets them):
+
+- `hidden`: set it to `true` in **Table Editor** › `designs` to take a template (or a shared
+  design) down without deleting it. Set it back to `false` to restore it.
+- `price_cents`: 0 means free. The store only lists free templates for now; a price above 0 hides
+  the template from the store until paid templates are added (checkout, and serving the file only
+  after payment).
+
+After updating `setup.sql`, run the whole file again in the SQL Editor: it is safe to re-run.
+
 ## Looking after it
 
-- **Moderation:** shared designs are public. To remove one, open **Table Editor** › `designs`,
-  find the row and delete it (then its files under **Storage** › `designs`).
+- **Moderation:** shared designs and templates are public. To take one down, set its `hidden` to
+  `true` in **Table Editor** › `designs`; to remove it for good, delete the row (then its files
+  under **Storage** › `designs`).
 - **Free tier limits:** about 1 GB of file storage and 50,000 monthly users. Supabase shows usage
   under **Project Settings** › **Usage**.
