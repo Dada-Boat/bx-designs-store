@@ -76,6 +76,19 @@ Two fields are yours alone (designers can't change them; the database resets the
 
 After updating `setup.sql`, run the whole file again in the SQL Editor: it is safe to re-run.
 
+## Sign-in emails
+
+Sign-in emails go through Brevo (free plan: 300 emails a day), set in **Authentication** ›
+**Emails** › **SMTP Settings**: host `smtp-relay.brevo.com`, port 587, the SMTP login from Brevo's
+**SMTP & API** page, and a Brevo SMTP key as the password (never commit the key). The sender must
+be verified in Brevo (**Senders, Domains & Dedicated IPs**). The email rate limit is 50 an hour
+(**Authentication** › **Rate Limits**).
+
+Both the **Magic link** and **Confirm sign up** templates use `email/sign-in-template.html`, with
+`__HEADING__` and `__BODY__` filled in (subjects: "Your BX Designs sign-in link" and "Welcome to BX
+Designs: confirm your email"). A sender on a domain BuildX Multimedia owns, authenticated in Brevo
+(DKIM and DMARC), would keep these emails out of spam better than a Gmail address.
+
 ## Looking after it
 
 - **Moderation:** shared designs and templates are public. To take one down, set its `hidden` to
