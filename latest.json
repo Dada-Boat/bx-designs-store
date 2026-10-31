@@ -1,5 +1,5 @@
 {
-  "version": "0.10.3",
+  "version": "0.10.4",
   "url": "https://dada-boat.github.io/bx-designs-store/updates.html",
-  "notes": "New: designers can publish their own templates from the Design Library, and everyone can open them from the template store. Fixed: \"Open in BX Designs\" links repair themselves on start; the CMYK Channel Mixer mixes inks like Photoshop."
+  "notes": "Closer to Photoshop: Bevel & Emboss (Stroke Emboss, Gloss Contour and its Anti-aliased, Chisel, Contour Range), Selective Color, and 32-bit Hue/Saturation."
 }
